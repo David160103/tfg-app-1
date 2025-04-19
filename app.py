@@ -4,9 +4,9 @@ import numpy as np
 import joblib
 
 # Cargar modelos
-modelo = joblib.load("modelo_entrenado.pkl")
-escalador = joblib.load("escalador.pkl")
-codificador = joblib.load("codificador.pkl")
+modelo = joblib.load("modelo_xgboost.pkl")
+escalador = joblib.load("scaler.pkl")
+codificador = joblib.load("encoder.pkl")
 
 st.title("Predicción de precio de vivienda")
 st.write("Introduce las características del inmueble para obtener una estimación del precio de venta.")
