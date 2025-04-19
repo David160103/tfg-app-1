@@ -48,6 +48,13 @@ input_data = pd.DataFrame([{
     **orient_dict,
     "Price_per_m2": 0  # Campo dummy si lo necesitas
 }])
+# Lista de columnas en el mismo orden que se usaron al entrenar el escalador
+columnas_esperadas = ['Surface', 'Rooms', 'Bathrooms', 'Air_Conditioner', 'Elevator',
+                      'Swimming_Pool', 'Terrace', 'Parking', 'is_orientation_north',
+                      'is_orientation_west', 'is_orientation_south', 'is_orientation_east', 'Price_per_m2']
+
+# Asegurarte de que input_data tiene ese orden y todas esas columnas
+input_data = input_data[columnas_esperadas]
 
 # Normalizar las variables numéricas
 input_scaled = escalador.transform(input_data)
