@@ -35,26 +35,34 @@ orient_dict = {
     "is_orientation_west": 1 if orientacion == "Oeste" else 0,
 }
 
-# Crear input del usuario como DataFrame
-input_data = pd.DataFrame([{
+# Datos introducidos por el usuario
+input_data = {
     "Surface": surface,
     "Rooms": rooms,
     "Bathrooms": bathrooms,
-    "Air_Conditioner": int(air),
-    "Elevator": int(elevator),
-    "Swimming_Pool": int(pool),
-    "Terrace": int(terrace),
-    "Parking": int(parking),
-    **orient_dict,
-    "Price_per_m2": 0  # Campo dummy si lo necesitas
-}])
-# Lista de columnas en el mismo orden que se usaron al entrenar el escalador
+    "Air_Conditioner": air_conditioner,
+    "Elevator": elevator,
+    "Swimming_Pool": swimming_pool,
+    "Terrace": terrace,
+    "Parking": parking,
+    "is_orientation_north": 1 if orientation == "Norte" else 0,
+    "is_orientation_west": 1 if orientation == "Oeste" else 0,
+    "is_orientation_south": 1 if orientation == "Sur" else 0,
+    "is_orientation_east": 1 if orientation == "Este" else 0,
+    "Price_per_m2": price_per_m2
+}
+
+input_data = pd.DataFrame([input_data])
+
+# 👉 Asegurarse de que el orden de las columnas es el mismo que en el entrenamiento
 columnas_esperadas = ['Surface', 'Rooms', 'Bathrooms', 'Air_Conditioner', 'Elevator',
                       'Swimming_Pool', 'Terrace', 'Parking', 'is_orientation_north',
                       'is_orientation_west', 'is_orientation_south', 'is_orientation_east', 'Price_per_m2']
+input_data = input_data[columnas_esperadas]  # Reordenar y evitar errores de validación
 
-# Asegurarte de que input_data tiene ese orden y todas esas columnas
-input_data = input_data[columnas_esperadas]
+# Aplicar el escalador
+input_scaled = escalador.transform(input_data)
+
 
 # Normalizar las variables numéricas
 input_scaled = escalador.transform(input_data)
