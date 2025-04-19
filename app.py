@@ -3,9 +3,9 @@ import joblib
 import pandas as pd
 
 # Cargar modelo y transformadores
-modelo = joblib.load("modelo_entrenado.pkl")
-escalador = joblib.load("escalador.pkl")
-codificador = joblib.load("codificador.pkl")
+modelo = joblib.load("modelo_xgboost.pkl")
+escalador = joblib.load("scaler.pkl")
+codificador = joblib.load("encoder.pkl")
 
 st.title("Predicción del Precio de Viviendas en Madrid")
 st.write("Introduce las características de la vivienda para estimar su precio de venta")
