@@ -4,9 +4,9 @@ import numpy as np
 import joblib
 
 # Cargar los modelos y transformadores
-modelo = joblib.load("modelo_entrenado.pkl")
-escalador = joblib.load("escalador.pkl")
-codificador = joblib.load("codificador.pkl")
+modelo = joblib.load("modelo_xgboost.pkl")
+escalador = joblib.load("scaler.pkl")
+codificador = joblib.load("encoder.pkl")
 columnas_numericas = joblib.load("columnas_numericas.pkl")
 columnas_codificadas = joblib.load("columnas_categoricas.pkl")
 
