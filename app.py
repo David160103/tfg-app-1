@@ -1,69 +1,76 @@
 import streamlit as st
-import joblib
 import pandas as pd
+import numpy as np
+import joblib
 
-# Cargar modelo y transformadores
-modelo = joblib.load("modelo_xgboost.pkl")
-escalador = joblib.load("scaler.pkl")
-codificador = joblib.load("encoder.pkl")
+# Cargar los modelos y transformadores
+modelo = joblib.load("modelo_entrenado.pkl")
+escalador = joblib.load("escalador.pkl")
+codificador = joblib.load("codificador.pkl")
+columnas_numericas = joblib.load("columnas_numericas.pkl")
+columnas_codificadas = joblib.load("columnas_categoricas.pkl")
 
-st.title("Predicción del Precio de Viviendas en Madrid")
-st.write("Introduce las características de la vivienda para estimar su precio de venta")
+st.set_page_config(page_title="Predicción de Precios de Vivienda", layout="centered")
+st.title("🧠 Valoriza AI - Estimador de precios inmobiliarios")
+st.markdown("Introduce los datos de tu vivienda para estimar su precio de venta en Madrid.")
 
-# Entradas de usuario
-surface = st.number_input("Superficie (m2)", min_value=10, max_value=1000, step=1)
-rooms = st.slider("Nº de habitaciones", 1, 10, 3)
-bathrooms = st.slider("Nº de baños", 1, 5, 2)
-air_conditioner = st.checkbox("Aire acondicionado")
-elevator = st.checkbox("Ascensor")
-swimming_pool = st.checkbox("Piscina")
-terrace = st.checkbox("Terraza")
-parking = st.checkbox("Plaza de garaje")
-orientation = st.selectbox("Orientación", ["Norte", "Sur", "Este", "Oeste"])
-price_per_m2 = st.number_input("Precio por m²", min_value=1000, max_value=20000, step=100)
-district = st.selectbox("Distrito", ["District 5: Chamartín", "District 11: Moncloa"])
+# Campos de entrada
 neighborhood = st.selectbox("Barrio", [
-    "El Viso", "Castilla", "Ciudad Jardín", "Nueva España", "Hispanoamérica", "Prosperidad", "Chamartín",
-    "Aravaca", "Argüelles", "Casa de Campo", "Ciudad Universitaria", "El Plantío", "Valdemarín", "Valdezarza", "Moncloa"])
+    "El Plantío", "Aravaca", "Valdemarín", "Casa de Campo", "Ciudad Universitaria",
+    "Argüelles", "Valdezarza", "Castilla", "Ciudad Jardín", "El Viso", "Hispanoamérica",
+    "Nueva España", "Prosperidad", "Chamartín")
 
-# Codificar orientación
-is_orientation_north = int(orientation == "Norte")
-is_orientation_south = int(orientation == "Sur")
-is_orientation_east = int(orientation == "Este")
-is_orientation_west = int(orientation == "Oeste")
+district = st.selectbox("Distrito", ["Moncloa-Aravaca", "Chamartín"])
 
-# Crear DataFrame con datos del usuario
-input_data = pd.DataFrame([{ 
-    "Surface": surface,
-    "Rooms": rooms,
-    "Bathrooms": bathrooms,
-    "Air_Conditioner": int(air_conditioner),
-    "Elevator": int(elevator),
-    "Swimming_Pool": int(swimming_pool),
-    "Terrace": int(terrace),
-    "Parking": int(parking),
-    "is_orientation_north": is_orientation_north,
-    "is_orientation_west": is_orientation_west,
-    "is_orientation_south": is_orientation_south,
-    "is_orientation_east": is_orientation_east,
-    "Price_per_m2": price_per_m2,
-    "neighborhood": neighborhood,
-    "district": district
-}])
+surface = st.number_input("Superficie (m²)", min_value=10, max_value=1000, value=100)
+rooms = st.number_input("Número de habitaciones", min_value=1, max_value=10, value=3)
+bathrooms = st.number_input("Número de baños", min_value=1, max_value=5, value=2)
 
-# Separar columnas categóricas y numéricas
-categorical = input_data[["neighborhood", "district"]]
-numerical = input_data.drop(columns=["neighborhood", "district"])
+air_conditioner = st.selectbox("Aire acondicionado", ["Sí", "No"])
+elevator = st.selectbox("Ascensor", ["Sí", "No"])
+swimming_pool = st.selectbox("Piscina", ["Sí", "No"])
+terrace = st.selectbox("Terraza", ["Sí", "No"])
+parking = st.selectbox("Plaza de garaje", ["Sí", "No"])
 
-# Codificar categóricas y escalar numéricas
-categorical_encoded = pd.DataFrame(codificador.transform(categorical),
-                                    columns=codificador.get_feature_names_out(["neighborhood", "district"]))
-numerical_scaled = pd.DataFrame(escalador.transform(numerical), columns=numerical.columns)
+orientation = st.selectbox("Orientación", ["Norte", "Sur", "Este", "Oeste"])
 
-# Unir todo el input transformado
-input_scaled = pd.concat([numerical_scaled, categorical_encoded], axis=1)
+price_per_m2 = st.number_input("Precio estimado por m² (opcional, puedes dejarlo en blanco si no lo sabes)", value=0)
 
-# Predicción
-if st.button("Predecir precio"):
-    prediccion = modelo.predict(input_scaled)[0]
-    st.success(f"El precio estimado de la vivienda es: {prediccion:,.0f} €")
+# Botón para predecir
+if st.button("Estimar precio"):
+    # Codificar orientación
+    orientaciones = {
+        "is_orientation_north": 1 if orientation == "Norte" else 0,
+        "is_orientation_south": 1 if orientation == "Sur" else 0,
+        "is_orientation_east": 1 if orientation == "Este" else 0,
+        "is_orientation_west": 1 if orientation == "Oeste" else 0,
+    }
+
+    # Datos numéricos
+    datos_numericos = pd.DataFrame([{
+        "Surface": surface,
+        "Rooms": rooms,
+        "Bathrooms": bathrooms,
+        "Air_Conditioner": 1 if air_conditioner == "Sí" else 0,
+        "Elevator": 1 if elevator == "Sí" else 0,
+        "Swimming_Pool": 1 if swimming_pool == "Sí" else 0,
+        "Terrace": 1 if terrace == "Sí" else 0,
+        "Parking": 1 if parking == "Sí" else 0,
+        **orientaciones,
+        "Price_per_m2": price_per_m2 if price_per_m2 > 0 else 0
+    }])
+
+    # Normalizar datos numéricos
+    datos_numericos = pd.DataFrame(escalador.transform(datos_numericos), columns=columnas_numericas)
+
+    # Codificar barrio y distrito
+    datos_categoricos = pd.DataFrame([{"neighborhood": neighborhood, "district": district}])
+    datos_codificados = codificador.transform(datos_categoricos)
+    datos_codificados = pd.DataFrame(datos_codificados, columns=columnas_codificadas)
+
+    # Unir ambas partes
+    input_final = pd.concat([datos_numericos, datos_codificados], axis=1)
+
+    # Predecir
+    prediccion = modelo.predict(input_final)[0]
+    st.success(f"💰 El precio estimado de venta es: {prediccion:,.0f} €")
