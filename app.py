@@ -18,7 +18,7 @@ st.markdown("Introduce los datos de tu vivienda para estimar su precio de venta 
 neighborhood = st.selectbox("Barrio", [
     "El Plantío", "Aravaca", "Valdemarín", "Casa de Campo", "Ciudad Universitaria",
     "Argüelles", "Valdezarza", "Castilla", "Ciudad Jardín", "El Viso", "Hispanoamérica",
-    "Nueva España", "Prosperidad", "Chamartín")
+    "Nueva España", "Prosperidad", "Chamartín"])
 
 district = st.selectbox("Distrito", ["Moncloa-Aravaca", "Chamartín"])
 
