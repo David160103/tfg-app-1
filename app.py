@@ -41,9 +41,9 @@ if st.button("Estimar precio"):
     # Codificar orientación
     orientaciones = {
         "is_orientation_north": 1 if orientation == "Norte" else 0,
+        "is_orientation_west": 1 if orientation == "Oeste" else 0,
         "is_orientation_south": 1 if orientation == "Sur" else 0,
         "is_orientation_east": 1 if orientation == "Este" else 0,
-        "is_orientation_west": 1 if orientation == "Oeste" else 0,
     }
 
     # Datos numéricos
@@ -57,7 +57,6 @@ if st.button("Estimar precio"):
         "Terrace": 1 if terrace == "Sí" else 0,
         "Parking": 1 if parking == "Sí" else 0,
         **orientaciones,
-        "Price_per_m2": price_per_m2 if price_per_m2 > 0 else 0
     }])
 
     # Normalizar datos numéricos
