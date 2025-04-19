@@ -8,7 +8,7 @@ modelo = joblib.load("modelo_xgboost.pkl")
 escalador = joblib.load("scaler.pkl")
 codificador = joblib.load("encoder.pkl")
 columnas_numericas = joblib.load("columnas_numericas.pkl")
-columnas_codificadas = joblib.load("columnas_categoricas.pkl")
+
 
 st.set_page_config(page_title="Predicción de Precios de Vivienda", layout="centered")
 st.title("🧠 Valoriza AI - Estimador de precios inmobiliarios")
